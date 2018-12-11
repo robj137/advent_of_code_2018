@@ -22,10 +22,8 @@ def main():
     for y in range(300):
       grid[x,y] += get_power(x+1,y+1, serial)
 
-  max_power = 0
-  x_max = 0
-  y_max = 0
-  gs_max = 0
+  max_power = x_max = y_max = gs_max = 0
+
   for grid_size in range(3, 300):
     for x in range(300-grid_size+1):
       for y in range(300-grid_size+1):

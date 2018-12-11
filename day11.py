@@ -13,6 +13,8 @@ def get_power(x,y, serial):
   return power
 
 def main():
+  # so part a takes less than a second
+  # and part b takes less than 3 minutes :P
   begin = dt.datetime.now()
   serial = 7511
   grid = np.zeros([300,300])

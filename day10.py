@@ -18,8 +18,10 @@ def animate(step, *fargs):
   x = np.array(df['x'])
   y = np.array(df['y'])
   chart.set_data(x,y)
-  ax.set_xlim(np.min(x), np.max(x))
-  ax.set_ylim(np.min(y), np.max(y))
+  x_spread = np.max(x) - np.min(x) 
+  y_spread = np.max(y) - np.min(y) 
+  ax.set_xlim(np.min(x)-0.1*x_spread, np.max(x)+0.1*x_spread)
+  ax.set_ylim(np.min(y)-0.1*y_spread, np.max(y)+0.1*y_spread)
   ax.set_title('step {}'.format(step))
   update_df(df, -step)
   return (chart,)
@@ -39,11 +41,15 @@ def find_minimum_box_step(df):
   n_steps_x = (df['x'] / df['v_x']).mean()
   n_steps_y = (df['y'] / df['v_y']).mean()
   step_guess = np.abs(int(np.mean([n_steps_x, n_steps_y])))
+  print('Guess at minimum extend step (using velocity / pos arguments): {}'.format(step_guess))
   steps = [step_guess + x for x in range(-5,6)]
   areas = [get_bounding_box_area(df, step) for step in steps]
   if np.argmin(areas) not in [0, len(areas)]:
     #success!
+    print('Actual minimum extent step: {}'.format(steps[np.argmin(areas)]))
     return steps[np.argmin(areas)]
+    # if this hadn't worked, I could have increased the step length in order to find a minimum, but
+    # the initial guess was quite good honestly.
 
 def update_df(df, n_times =1):
   df['x'] = df['x'] + n_times*df['v_x']

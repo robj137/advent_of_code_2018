@@ -20,8 +20,8 @@ def main():
   # didn't have to build any logic into deciding how big the pads are because part b. is
   # unsolveable by brute force
 
-  begin_pad = 100
-  end_pad = 220
+  begin_pad = 10
+  end_pad = 190
   initial_state = '.'*begin_pad + initial_state + '.'*end_pad
   states.append(initial_state)
 
@@ -34,12 +34,12 @@ def main():
   last_sum = 0
   for i in range(120):
     if i == 20:
-      print('Part a: the sum of potted plants is {}'.format(last_sum))
+     pass #print('Part a: the sum of potted plants is {}'.format(last_sum))
     state = propagate_state(grow_dict, state)
     this_sum = get_sum_of_planted_pots(state, begin_pad)
     diff = this_sum - last_sum
     last_sum = this_sum
-    #print(state)
+    print(state)
 
   print('So the sum at 120 is {}'.format(this_sum))
   print('We see that things settle down after about 110 or so, with each new generation adding 67')

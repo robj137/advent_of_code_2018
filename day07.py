@@ -29,16 +29,29 @@ def process_dict(dependency_dict, queue, finished):
   for step in finished:
     for key in sorted(dependency_dict.keys()):
       if step in dependency_dict[key]:
+        # if a letter is 'finished', pop it off any dependency lists in the dict
         dependency_dict[key].pop(dependency_dict[key].index(step))
   for key in sorted(dependency_dict.keys()):
     if len(dependency_dict[key]) == 0:
+      # oh good, all dependencies are taken care of, so we remove this guy from the dictionary and
+      # add it to the queue
       queue.append(key)
       del dependency_dict[key]
+  # and we sort the queue to keep it alphabetical (jobs get popped off the top, so also reverse) 
   queue.sort()
   queue.reverse()
 
 def process(dependency_dict, n_threads = 1):
-  threads = [get_thread() for x in range(n_threads)]
+  # pretty simple really. the dependency_dict has a key for each letter
+  # the value for a key is a list of all that letter's dependencies
+  # the dictionary gets updated, so once a letter is processed, it gets deleted from
+  # the dictionary value until a letter only has an empty list. if that list is empty, 
+  # the letter can begin to be processed, and gets added to the queue
+  # once a letter is processed, it gets added to finished.
+  # each second, check for available workers (threads) to pick up anything in the queue (if there
+  # is anything)
+  # each worker (thread) keeps track of what it's working on and how much longer it has to go
+  threads = [get_thread() for _ in range(n_threads)]
   queue = []
   finished = []
 
@@ -51,16 +64,15 @@ def process(dependency_dict, n_threads = 1):
         thread['processing'] = None
       if thread['time_left'] > 0:
         thread['time_left'] -= 1
+    # do some cleanup work on the dictionary
     process_dict(dependency_dict, queue, finished)
     for thread in threads:
       if not thread['processing']:
         if queue:
+          # we have an idle worker and something for them to do!
           step = queue.pop()
           thread['processing'] = step
           thread['time_left'] = 60 + ord(step) - 64
-    # check for worker availability (and decrement their time as needed)
-    # as lettesr get finished, adjust the dependency dict and add any newly opened letters to the
-    # queue
   return time-1
 
 if __name__ == '__main__':

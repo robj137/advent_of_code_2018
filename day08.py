@@ -9,6 +9,8 @@ def main():
   with open('inputs/day8.txt') as f:
     numbers = [int(x) for x in f.read().strip().split(' ')]
 
+  
+  # create the tree
   create_node_from_list(numbers, 0)
   #create_node_from_list(get_test_data(), 0)
 
@@ -53,6 +55,7 @@ def create_node_from_list(numbers, start):
   child_node_indices = []
   child_lengths = []
   n_child_nodes = numbers[start]
+  metadata_length = numbers[start+1]
   node['n_children'] = n_child_nodes
   while n_child_nodes > len(child_node_indices):
     child_index, length = create_node_from_list(numbers, start + 2 + sum(child_lengths))
@@ -60,7 +63,7 @@ def create_node_from_list(numbers, start):
     child_lengths.append(length)
   node['child_indices'] = child_node_indices
   metadata_start = start + 2 + sum(child_lengths)
-  metadata_end = metadata_start + numbers[start+1]
+  metadata_end = metadata_start + metadata_length
   node['metadata'] = numbers[metadata_start:metadata_end]
   this_node_length = metadata_end - start
   

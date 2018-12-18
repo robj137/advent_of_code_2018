@@ -3,8 +3,8 @@ import datetime as dt
 def main():
   in_file = open('inputs/day1.txt')
   shifts = []
-  for line in in_file:
-    shifts.append(int(line.strip()))
+  with open('inputs/day1.txt') as f:
+    shifts = [int(x.strip()) for x in f.readlines()]
   print('The frequency shifts end at {}'.format(sum(shifts)))
   
   current_frequency = 0

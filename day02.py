@@ -11,10 +11,8 @@ def compare_serials(s1, s2):
   return misses
 
 def main():
-  serials = []
   with open('inputs/day2.txt') as f:
-    for line in f:
-      serials.append(line.strip())
+    serials = [x.strip() for x in f.readlines()]
 
   twos = threes = 0
   for serial in serials:

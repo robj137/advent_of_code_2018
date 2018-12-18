@@ -62,11 +62,8 @@ def parse_coords(capture):
 
 
 def main():
-  coords = []
   with open('inputs/day10.txt') as f:
-    for line in f:
-      capture = re.search('position=<(.*)> velocity=<(.*)>', line.strip()).groups()
-      coords.append(parse_coords(capture))
+    coords = [parse_coords(re.search('position=<(.*)> velocity=<(.*)>', x.strip()).groups()) for x in f.readlines()]
   df = pd.DataFrame(coords)
   step_guess = find_minimum_box_step(df)
   anim = FuncAnimation(fig, animate, fargs=[df], frames = np.arange(step_guess-5, step_guess+5), interval=2000)

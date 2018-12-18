@@ -4,10 +4,8 @@ import copy
 import datetime as dt
 
 def main():
-  instructions = []
   with open('inputs/day7.txt') as f:
-    for line in f:
-      instructions.append(re.search('Step (\w) must be finished before step (\w) can begin', line.strip()).groups())
+    instructions = [re.search('Step (\w) must be finished before step (\w) can begin', x.strip()).groups() for x in f.readlines()]
 
   dependency_dict = {x:[] for x in string.ascii_uppercase}
   for instruction in instructions:

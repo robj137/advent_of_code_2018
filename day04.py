@@ -4,11 +4,9 @@ from collections import defaultdict, Counter
 import datetime as dt
 
 def main():
-  lines = []
   with open('inputs/day4.txt') as f:
-    for line in f:
-      lines.append(line.strip())
-  lines.sort()
+    lines = sorted([x.strip() for x in f.readlines()])
+  
 
   current_guard = 0
   guard_dict = defaultdict(list)

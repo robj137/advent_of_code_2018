@@ -10,10 +10,8 @@ signals['<'] = {'step': (-1, 0), '/':'v', '\\':'^', 'l':'v', 's':'<', 'r':'^' }
 
 
 def main():
-  tracks = []
   with open('inputs/day13.txt') as f:
-    for line in f:
-      tracks.append((list(line.strip('\n'))))
+    tracks = [list(x.strip('\n')) for x in f.readlines()]
 
   tracks = np.array(tracks)
 

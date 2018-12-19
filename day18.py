@@ -48,7 +48,7 @@ def main():
   for i in range(1500):
     landscape = transform(landscape)
     values.append(get_resource_value(landscape))
-    #prettify_map(landscape)
+    prettify_map(landscape)
 
   # our hunch is that there's a cyclical nature in the resource values. Looking at the 
   # plot of the landscape as the minutes goes by makes it seem like this is a good hunch

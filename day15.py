@@ -12,18 +12,25 @@ class Dungeon:
     self.dungeon_map = np.array(lines)
     self.get_dungeon_neighbors()
   
+  def print_map(self):
+    for line in self.dungeon_map:
+      print(''.join(line))
+  
   def set_belligerents(self, belligerents_list):
     self.belligerents = belligerents_list
     self.belligerents_alive = belligerents_list
 
-  def sort_belligerents(self):
-    # need to sort the characters by reading list
+  def sort_belligerents(self): # sort the characters by reading list
     self.belligerents = sorted(self.belligerents, key = lambda x: x.get_position()[1]*0.00001 + x.get_position()[0] * 0.01)
+  
+  def perform_round(self):
+    self.sort_belligerents()
+    for fighter in self.belligerents:
+      fighter.perform_turn()
   
   def get_score(self):
     scores = {'Elf':0, 'Goblin':0}
     for enemy in self.belligerents_alive:
-      #print(enemy.position, enemy.type, enemy.get_hp())
       scores[enemy.type] += enemy.get_hp()
 
     if scores['Elf'] == 0 or scores['Goblin'] == 0:
@@ -55,6 +62,34 @@ class Dungeon:
       if tuple(enemy.get_position()) == tuple(pos) and enemy.type != friendly_type:
         return enemy
     return None
+
+  def dijkstra(self, p1, p2, forbidden = []):
+    p1 = tuple(p1)
+    p2 = tuple(p2)
+    if p1 == p2:
+      return 0, [p2], p2
+    visited = {}
+    notVisited = {}
+    for key in self.dungeon_neighbors.keys():
+      if key not in forbidden:
+        notVisited[key] = self.dungeon_neighbors[key]
+
+    heap = []
+    heapq.heappush(heap, [1, p1, [p1] ])
+    first_step = False
+    while heap:
+      s, thisVtxKey, path = heapq.heappop(heap)
+      if thisVtxKey not in visited:
+        visited[thisVtxKey] = notVisited.pop(thisVtxKey)
+        for vtx in self.dungeon_neighbors[thisVtxKey]:
+          if vtx not in visited and vtx not in forbidden:
+            sum1 = s + 1
+            heapq.heappush(heap, [sum1,vtx,path + [vtx]])
+            if vtx == p2:
+              return sum1, path, vtx
+    # well that didn't work, so we return a bunch of 'inf's
+    return float('inf'), [(float('inf'), float('inf'))], (float('inf'), float('inf'))
+  
 
 class Fighter:
   
@@ -110,7 +145,7 @@ class Fighter:
     #  print(ranges)
     distances = []
     for r in ranges:
-      d = dijkstra(self.dungeon.dungeon_neighbors, self.position, r, forbidden)
+      d = self.dungeon.dijkstra(self.position, r, forbidden)
       length = d[0] + 0.01*r[0] + 0.0001*r[1]
       distances.append(length)
     i = np.argmin(distances)
@@ -125,7 +160,7 @@ class Fighter:
     first_steps = [(0,0), (0,0), (0,0), (0,0)]
     for i, delta in enumerate([(1,0), (0,1), (0,-1), (-1,0)]):
       if self.dungeon.is_open_square(np.array(self.get_position()) + delta, False):
-        weight, path, vts = dijkstra(self.dungeon.dungeon_neighbors, np.array(self.position) + delta, destination, forbidden)
+        weight, path, vts = self.dungeon.dijkstra(np.array(self.position) + delta, destination, forbidden)
         weights[i] += weight
         if path: 
           first_steps[i] = path[0]
@@ -138,7 +173,7 @@ class Fighter:
     #      .format( self.position, destination, first_steps[np.argmin(weights)], weights, first_steps))
     self.set_position(first_steps[np.argmin(weights)])
     self.dungeon.dungeon_map[tuple(self.position)] = self.type[0]
-    #prettify_map(self.dungeon.dungeon_map)
+    #print_map(self.dungeon.dungeon_map)
   def attack(self):
     targets = np.argwhere(self.dungeon.dungeon_map == self.enemy_type)
     target = None
@@ -178,27 +213,26 @@ def run_campaign(elf_power=3):
     belligerents.append(fighter)
 
   dungeon.set_belligerents(belligerents)
-  
 
-  prettify_map(dungeon.dungeon_map)
+  dungeon.print_map()
   keep_going, score_differential = dungeon.get_score()
   i = 0
   while keep_going:
     if len(np.argwhere(dungeon.dungeon_map == 'E')) != n_elves:
       print('\noh no!\n')
       return -1
-    perform_round(dungeon)
+    dungeon.perform_round()
     keep_going, score_differential = dungeon.get_score()
     if not keep_going:
       break
     i += 1
     print('\nElf Power: {}'.format(elf_power))
     print('end of round {}'.format(i+1))
-    prettify_map(dungeon.dungeon_map)
+    dungeon.print_map()
   if elf_power == 3:
     print('Part a: THe outcome is {}'.format(score * i))
   print('\n oh yeah! \n')
-  prettify_map(dungeon.dungeon_map)
+  dungeon.print_map()
   return score_differential*i
 
 def main():
@@ -223,46 +257,6 @@ def main():
         keep_going = False
         print('Part b: Outcome with all surviving elves is {}'.format(scores[min(successes)]))
     
-
-def prettify_map(dungeon_map):
-  for line in dungeon_map:
-    print(''.join(line))
-
-def perform_round(dungeon):
-  dungeon.sort_belligerents()
-  #print([(enemy.type, enemy.position) for enemy in dungeon.belligerents])
-  for fighter in dungeon.belligerents:
-    fighter.perform_turn()
-
-def dijkstra(graph, p1, p2, forbidden = []):
-  #forbidden = []
-  p1 = tuple(p1)
-  p2 = tuple(p2)
-  if p1 == p2:
-    return 0, [p2], p2
-  visited = {}
-  notVisited = {}
-  for key in graph.keys():
-    if key not in forbidden:
-      notVisited[key] = graph[key]
-
-  heap = []
-  heapq.heappush(heap, [1, p1, [p1] ])
-  first_step = False
-  while heap:
-    s, thisVtxKey, path = heapq.heappop(heap)
-    if thisVtxKey not in visited:
-      visited[thisVtxKey] = notVisited.pop(thisVtxKey)
-      for vtx in graph[thisVtxKey]:
-        if vtx not in visited and vtx not in forbidden:
-          sum1 = s + 1
-          heapq.heappush(heap, [sum1,vtx,path + [vtx]])
-          if vtx == p2:
-            return sum1, path, vtx
-  
-  return float('inf'), [(float('inf'), float('inf'))], (float('inf'), float('inf'))
-  
-
 if __name__ == '__main__':
   begin = dt.datetime.now()
   main()

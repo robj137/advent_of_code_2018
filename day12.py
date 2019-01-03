@@ -34,7 +34,7 @@ def main():
   last_sum = 0
   for i in range(120):
     if i == 20:
-     pass #print('Part a: the sum of potted plants is {}'.format(last_sum))
+      pass #print('Part a: the sum of potted plants is {}'.format(last_sum))
     state = propagate_state(grow_dict, state)
     this_sum = get_sum_of_planted_pots(state, begin_pad)
     diff = this_sum - last_sum

@@ -32,7 +32,7 @@ def main():
   print(ymin, ymax, xmin, xmax)
 
   clay_map = np.zeros([ymax+5, xmax-xmin + 5])
-  offset = xmin
+  offset = xmin-2
   clay_map[(ymin, 500-offset)] = 9
   
   for el in clay:    
@@ -51,9 +51,9 @@ def main():
   print(n_tiles_flowing, n_tiles_standing, n_tiles_flowing + n_tiles_standing)
   print('Part a: All \'wet\' tiles (standing + flowing) = {}'.format(n_tiles_flowing + n_tiles_standing))
   print('Part b: All standing water tiles: {}'.format(n_tiles_standing))
-  #with open('view.txt', 'w') as f:
-  #  for line in clay_map:
-  #    f.write(''.join([str(int(x)) for x in line]) + '\n')
+  with open('view.txt', 'w') as f:
+    for line in clay_map:
+      f.write((''.join([str(int(x)) for x in line])).replace('0', ' ').replace('1','█').replace('2', '~').replace('3', '░') + '\n')
 
 
 

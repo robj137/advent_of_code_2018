@@ -63,11 +63,16 @@ class Dungeon:
         return enemy
     return None
 
-  def dijkstra(self, p1, p2, forbidden = []):
+  def get_heuristic(self, p1, p2):
+    # manhattan distance to target from current cell
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
+  def path_search(self, p1, p2, forbidden = []):
     p1 = tuple(p1)
     p2 = tuple(p2)
     if p1 == p2:
-      return 0, [p2], p2
+      return 0,0, [p2], p2
     visited = {}
     notVisited = {}
     for key in self.dungeon_neighbors.keys():
@@ -75,20 +80,20 @@ class Dungeon:
         notVisited[key] = self.dungeon_neighbors[key]
 
     heap = []
-    heapq.heappush(heap, [1, p1, [p1] ])
+    heapq.heappush(heap, [1, 1, p1, [p1] ])
     first_step = False
     while heap:
-      s, thisVtxKey, path = heapq.heappop(heap)
+      _, s, thisVtxKey, path = heapq.heappop(heap)
       if thisVtxKey not in visited:
         visited[thisVtxKey] = notVisited.pop(thisVtxKey)
         for vtx in self.dungeon_neighbors[thisVtxKey]:
           if vtx not in visited and vtx not in forbidden:
             sum1 = s + 1
-            heapq.heappush(heap, [sum1,vtx,path + [vtx]])
+            heapq.heappush(heap, [sum1 + self.get_heuristic(vtx, p2), sum1,vtx,path + [vtx]])
             if vtx == p2:
-              return sum1, path, vtx
+              return sum1, sum1, path, vtx
     # well that didn't work, so we return a bunch of 'inf's
-    return float('inf'), [(float('inf'), float('inf'))], (float('inf'), float('inf'))
+    return float('inf'), float('inf'), [(float('inf'), float('inf'))], (float('inf'), float('inf'))
   
 
 class Fighter:
@@ -141,11 +146,9 @@ class Fighter:
     if not ranges:
       return self.position
     ranges = np.unique(ranges, axis=0)
-    #if self.type == 'Elf':
-    #  print(ranges)
     distances = []
     for r in ranges:
-      d = self.dungeon.dijkstra(self.position, r, forbidden)
+      d = self.dungeon.path_search(self.position, r, forbidden)
       length = d[0] + 0.01*r[0] + 0.0001*r[1]
       distances.append(length)
     i = np.argmin(distances)
@@ -153,14 +156,13 @@ class Fighter:
 
   def move(self, destination):
     forbidden = [tuple(x.position) for x in self.dungeon.belligerents_alive]
-    #print(destination)
     if tuple(self.position) == tuple(destination): #hooray, we're already there
       return
     weights = [0.3,0.2,0.1,0.0]
     first_steps = [(0,0), (0,0), (0,0), (0,0)]
     for i, delta in enumerate([(1,0), (0,1), (0,-1), (-1,0)]):
       if self.dungeon.is_open_square(np.array(self.get_position()) + delta, False):
-        weight, path, vts = self.dungeon.dijkstra(np.array(self.position) + delta, destination, forbidden)
+        _, weight, path, vts = self.dungeon.path_search(np.array(self.position) + delta, destination, forbidden)
         weights[i] += weight
         if path: 
           first_steps[i] = path[0]
@@ -169,11 +171,8 @@ class Fighter:
     if min(weights) == float('inf'):
       return # now here to go
     self.dungeon.dungeon_map[tuple(self.position)] = '.'
-    #print('{} moving to {}, first step: {}. Weights: {}, Steps: {}'
-    #      .format( self.position, destination, first_steps[np.argmin(weights)], weights, first_steps))
     self.set_position(first_steps[np.argmin(weights)])
     self.dungeon.dungeon_map[tuple(self.position)] = self.type[0]
-    #print_map(self.dungeon.dungeon_map)
   def attack(self):
     targets = np.argwhere(self.dungeon.dungeon_map == self.enemy_type)
     target = None
@@ -190,10 +189,8 @@ class Fighter:
       return # nothing to attack
     enemy.deal_blow(self.attack_power)
     if not enemy.get_is_alive():
-      #print('An {} has died at position {}'.format(enemy.type, enemy.get_position()))
       self.dungeon.belligerents_alive.pop(self.dungeon.belligerents_alive.index(enemy))
       self.dungeon.dungeon_map[tuple(enemy.get_position())] = '.'
-      #self.dungeon.belligerents.pop(i)
 
 def run_campaign(elf_power=3):
   dungeon = Dungeon('inputs/day15.txt')

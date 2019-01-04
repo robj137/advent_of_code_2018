@@ -19,13 +19,15 @@ def main():
   
   for turn in turns[1:-1]:
     # dealing with the lovely branches. When we come to a (, we push that room location onto a list
-    # when we hit the branch divider |, it means we've processed a branch, and so 
+    # when we hit the branch divider |, it means we've processed a branch, and so we return our
+    # room pointer to the beginning of the branch
     if turn == "(":
       branches.append(p)
     elif turn == "|":
       p = branches[-1]
     elif turn == ")":
-      p = branches.pop()
+      #p = 
+      branches.pop()
     else:
       p = tuple(np.array(p) + dir_dict[turn])
       room_dict[p].add(p_previous)

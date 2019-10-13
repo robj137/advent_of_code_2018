@@ -68,6 +68,7 @@ def easy_way():
         print('Part 1: Lowest non-negative integer value (fewest instructions): {}'
               .format(previously_seen[-1]))
 
+  print(len(previously_seen))
 
 def main():
   easy_way()

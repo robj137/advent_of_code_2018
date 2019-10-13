@@ -14,7 +14,7 @@ class Dungeon:
   
   def print_map(self):
     for line in self.dungeon_map:
-      print(''.join(line))
+      print((''.join(line)).replace('#','█').replace('.', ' '))
   
   def set_belligerents(self, belligerents_list):
     self.belligerents = belligerents_list
@@ -37,10 +37,11 @@ class Dungeon:
       return False, scores['Elf'] - scores['Goblin']
   
     return True, scores['Elf'] - scores['Goblin']
+  
   def get_dungeon_neighbors(self):
     dungeon_neighbors = {}
     for p in [np.array([x,y]) for x in range(self.dungeon_map.shape[0]) for y in range(self.dungeon_map.shape[1])]:
-      if self.dungeon_map[tuple(p)] != '#':
+      if self.dungeon_map[tuple(p)] != '█':
         dungeon_neighbors[tuple(p)] = []
         for delta in [(0,1), (0,-1), (1,0), (-1,0)]:
           if self.is_open_square(p+delta, True):
@@ -52,7 +53,7 @@ class Dungeon:
       if p[i] < i or p[i] >= self.dungeon_map.shape[i]:
         return False
     if ignore_fighters:
-      return self.dungeon_map[tuple(p)] != '#'
+      return self.dungeon_map[tuple(p)] != '█'
     if self.dungeon_map[tuple(p)] != '.':
       return False
     return True

@@ -90,8 +90,7 @@ def path_search(tgt):
           heapq.heappush(heap, [heap_cost, sum1,vtx,path + [vtx]])
           if vtx == tgt:
             return sum1, path, vtx
-  # well that didn't work, so we return a bunch of 'inf's
-  return float('inf'), float('inf'), [], [] #, [], []float('inf'), [(float('inf'), float('inf'))], (float('inf'), float('inf'))
+  return float('inf'), float('inf'), [], [] # didn't work, so return inf
 
 def get_map_character(p):
   if p == (0,0):
@@ -122,7 +121,7 @@ def main():
   minutes, path, vtx = path_search(tuple(list(target)+['t']))
   n_changes = 0
   for i in range(len(path)-1):
-    if path[i][0:2] == path[i+1][0::2]:
+    if path[i][0:2] == path[i+1][0:2]:
       n_changes += 1
   x_r, y_r, e_r = zip(*path)
   #print(path)

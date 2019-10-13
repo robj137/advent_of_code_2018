@@ -3,7 +3,7 @@ import datetime as dt
 from collections import defaultdict
 
 def main():
-  with open("inputs/day20.test2.txt") as f:
+  with open("inputs/day20.txt") as f:
     turns = f.read().strip("\n")
 
   dir_dict = {}
@@ -48,7 +48,8 @@ def main():
   print('Part b: There are {} rooms that have a shortest path of at least 1000 doors'
         .format(len([x for x in room_lengths.values() if x >= 1000])))
 
-
+  print('By the way, there are {} rooms total'.format(len(room_lengths)))
+  
 def draw_map(base_map, loc=None):
   keys = list(base_map.keys())
   minima = np.min(keys, axis=0)

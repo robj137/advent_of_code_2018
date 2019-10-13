@@ -49,7 +49,7 @@ def part2(coords):
     distances.append(np.sum(cdist(coords, [point], 'cityblock')))
 
   distances = np.array(distances)
-  print('Sie of the region containing all locations with sum(distance to points) < 10k: {}'
+  print('Size of the region containing all locations with sum(distance to points) < 10k: {}'
   .format(np.sum(distances<10000)))
 
 def main():
